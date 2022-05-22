@@ -24,11 +24,11 @@ import (
 
 func main() {
     domain := &credentials.Domain{
-		Service:     "My App Name",
-		AccessGroup: "github.com/plumber-cd/go-credentials", // Define some unique for your app instance value
-	}
+        Service:     "My App Name",
+        AccessGroup: "github.com/plumber-cd/go-credentials", // Define some unique for your app instance value
+    }
 
-	if err := credentials.SetDomain(domain); err != nil {
+    if err := credentials.SetDomain(domain); err != nil {
         panic(err)
     }
 
@@ -36,18 +36,18 @@ func main() {
         panic(err)
     }
     
-	name, secret, err := credentials.Retrieve("http://example.com")
+    name, secret, err := credentials.Retrieve("http://example.com")
     if err != nil {
         panic(err)
     }
     fmt.Printf("Name: %s\n", name)
     fmt.Printf("Secret: %s\n", secret)
 
-	if err := credentials.Update("http://example.com", "new title", "new password"); err != nil {
+    if err := credentials.Update("http://example.com", "new title", "new password"); err != nil {
         panic(err)
     }
 
-	if err := credentials.Delete("http://example.com"); err {
+    if err := credentials.Delete("http://example.com"); err {
         panic(err)
     }
 }
