@@ -9,6 +9,7 @@ import (
 
 func TestBig(t *testing.T) {
 	require.True(t, credentials.IsDefined())
+	require.False(t, credentials.IsConfigured())
 
 	_, _, err := credentials.Retrieve("http://foo")
 	require.Error(t, err)
@@ -18,8 +19,6 @@ func TestBig(t *testing.T) {
 		Service:     "GoCredentialsTesting",
 		AccessGroup: "github.com/plumber-cd/go-credentials/examples",
 	}
-	require.False(t, credentials.IsConfigured())
-
 	err = credentials.SetDomain(domain)
 	require.NoError(t, err)
 	require.True(t, credentials.IsConfigured())
