@@ -55,14 +55,14 @@ func main() {
 
 # Custom provider
 
-You need to create new `struct` than implements `credentials.Provider` interface. Somewhere early in your app, you then will need to:
+You need to create new `struct` than implements `credentials.Provider` interface. Somewhere in your app, you then will need to:
 
 ```go
 package main
 
 import "github.com/plumber-cd/go-credentials"
 
-func main() {
+func init() {
     credentials.Current = &MyCustomProvider{}
 }
 ```
