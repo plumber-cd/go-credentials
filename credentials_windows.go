@@ -6,6 +6,7 @@ package credentials
 import (
 	"bytes"
 	"errors"
+	"fmt"
 	"strings"
 
 	"github.com/danieljoos/wincred"
@@ -45,10 +46,10 @@ func (p *WindowsProvider) IsConfigured() bool {
 func (p *WindowsProvider) Create(url, name, secret string) error {
 	_, existing, err := p.Retrieve(url)
 	if err != nil && !errors.Is(err, ErrNotFound) {
-		p.WrapError(url, err)
+		p.ErrorWrap(url, err)
 	}
 	if existing != "" {
-		return p.WrapError(url, ErrDuplicate)
+		return p.ErrorWrap(url, ErrDuplicate)
 	}
 
 	g := wincred.NewGenericCredential(url)
@@ -63,10 +64,10 @@ func (p *WindowsProvider) Create(url, name, secret string) error {
 func (p *WindowsProvider) Retrieve(url string) (string, string, error) {
 	g, err := wincred.GetGenericCredential(url)
 	if err != nil {
-		return "", "", p.WrapError(url, err)
+		return "", "", p.ErrorWrap(url, err)
 	}
 	if g == nil {
-		return "", "", p.WrapError(url, ErrorNotFound)
+		return "", "", p.ErrorWrap(url, ErrNotFound)
 	}
 	for _, attr := range g.Attributes {
 		if strings.Compare(attr.Keyword, "label") == 0 &&
@@ -75,7 +76,7 @@ func (p *WindowsProvider) Retrieve(url string) (string, string, error) {
 			return g.UserName, string(g.CredentialBlob), nil
 		}
 	}
-	return "", "", p.WrapError(url, ErrorNotFound)
+	return "", "", p.ErrorWrap(url, ErrNotFound)
 }
 
 func (p *WindowsProvider) Update(url, name, secret string) error {
@@ -85,10 +86,10 @@ func (p *WindowsProvider) Update(url, name, secret string) error {
 	return p.Create(url, name, secret)
 }
 
-func (p *DarwinProvider) Delete(url string) error {
+func (p *WindowsProvider) Delete(url string) error {
 	g, err := wincred.GetGenericCredential(url)
 	if err != nil && !errors.Is(err, ErrNotFound) {
-		return p.WrapError(url, err)
+		return p.ErrorWrap(url, err)
 	}
 	if g == nil {
 		return nil
