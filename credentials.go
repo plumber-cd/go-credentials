@@ -55,14 +55,14 @@ func IsConfigured() bool {
 	return IsDefined() && Current.IsConfigured()
 }
 
-func Create(name, url, secret string) error {
+func Create(url, name, secret string) error {
 	if !IsDefined() {
 		return ErrProviderUndefined
 	}
 	if !IsConfigured() {
 		return ErrNotConfigured
 	}
-	return Current.Create(name, url, secret)
+	return Current.Create(url, name, secret)
 }
 
 func Retrieve(url string) (name, secret string, err error) {
@@ -75,14 +75,14 @@ func Retrieve(url string) (name, secret string, err error) {
 	return Current.Retrieve(url)
 }
 
-func Update(name, url, secret string) error {
+func Update(url, name, secret string) error {
 	if !IsDefined() {
 		return ErrProviderUndefined
 	}
 	if !IsConfigured() {
 		return ErrNotConfigured
 	}
-	return Current.Update(name, url, secret)
+	return Current.Update(url, name, secret)
 }
 
 func Delete(url string) error {
