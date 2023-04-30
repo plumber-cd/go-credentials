@@ -37,6 +37,10 @@ func (p *LinuxProvider) IsConfigured() bool {
 	return p.domain != nil
 }
 
+func (p *WindowsProvider) getTargetName(url string) string {
+	return p.domain.Service + " (" + url + ")"
+}
+
 func (p *LinuxProvider) OpenItem(
 	url string,
 	callback func(
@@ -61,8 +65,8 @@ func (p *LinuxProvider) OpenItem(
 	items, err := srv.SearchCollection(
 		secretservice.DefaultCollection,
 		map[string]string{
-			"label": p.domain.AccessGroup,
-			"url":   url,
+			"access-group": p.domain.AccessGroup,
+			"url":          url,
 		},
 	)
 	if err != nil {
@@ -74,7 +78,7 @@ func (p *LinuxProvider) OpenItem(
 		if err != nil {
 			return err
 		}
-		if slices.Contains(maps.Keys(attrs), "label") && attrs["label"] == p.domain.AccessGroup && attrs["url"] == url {
+		if slices.Contains(maps.Keys(attrs), "access-group") && attrs["access-group"] == p.domain.AccessGroup && attrs["url"] == url {
 			session, err := srv.OpenSession(secretservice.AuthenticationDHAES)
 			if err != nil {
 				return err
@@ -131,11 +135,11 @@ func (p *LinuxProvider) Create(url, name, secret string) error {
 	_, err = srv.CreateItem(
 		secretservice.DefaultCollection,
 		secretservice.NewSecretProperties(
-			url,
+			p.getSecretName(url),
 			map[string]string{
-				"label": p.domain.AccessGroup,
-				"name":  name,
-				"url":   url,
+				"access-group": p.domain.AccessGroup,
+				"name":         name,
+				"url":          url,
 			},
 		),
 		s,
@@ -149,7 +153,7 @@ func (p *LinuxProvider) Retrieve(url string) (string, string, error) {
 	var attrs secretservice.Attributes
 	var secret string
 	if err := p.OpenItem(
-		url,
+		p.getSecretName(url),
 		func(
 			_ *secretservice.SecretService,
 			_ dbus.ObjectPath,
@@ -176,7 +180,7 @@ func (p *LinuxProvider) Update(url, name, secret string) error {
 
 func (p *LinuxProvider) Delete(url string) error {
 	return p.OpenItem(
-		url,
+		p.getSecretName(url),
 		func(
 			srv *secretservice.SecretService,
 			item dbus.ObjectPath,
