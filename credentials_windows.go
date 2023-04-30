@@ -43,6 +43,10 @@ func (p *WindowsProvider) IsConfigured() bool {
 	return p.domain != nil
 }
 
+func (p *WindowsProvider) getTargetName(url string) string {
+	return p.domain.Service + " (" + url + ")"
+}
+
 func (p *WindowsProvider) Create(url, name, secret string) error {
 	_, existing, err := p.Retrieve(url)
 	if err != nil && !errors.Is(err, ErrNotFound) {
@@ -52,31 +56,52 @@ func (p *WindowsProvider) Create(url, name, secret string) error {
 		return p.ErrorWrap(url, ErrDuplicate)
 	}
 
-	g := wincred.NewGenericCredential(url)
+	g := wincred.NewGenericCredential(p.getTargetName(url))
 	g.UserName = name
 	g.CredentialBlob = []byte(secret)
 	g.Persist = wincred.PersistLocalMachine
-	g.Attributes = []wincred.CredentialAttribute{{Keyword: "label", Value: []byte(p.domain.AccessGroup)}}
+	g.Attributes = []wincred.CredentialAttribute{
+		{
+			Keyword: "url",
+			Value:   []byte(url),
+		},
+		{
+			Keyword: "access-group",
+			Value:   []byte(p.domain.AccessGroup),
+		},
+	}
 
 	return g.Write()
 }
 
+func (p *WindowsProvider) matchAttributes(url string, g *wincred.GenericCredential) bool {
+	matchAccessGroup, matchUrl := false, false
+	for _, attr := range g.Attributes {
+		if strings.Compare(attr.Keyword, "url") == 0 &&
+			bytes.Equal(attr.Value, []byte(url)) {
+			matchUrl = true
+		}
+
+		if strings.Compare(attr.Keyword, "access-group") == 0 &&
+			bytes.Equal(attr.Value, []byte(p.domain.AccessGroup)) {
+			matchAccessGroup = true
+		}
+	}
+	return matchUrl && matchAccessGroup
+}
+
 func (p *WindowsProvider) Retrieve(url string) (string, string, error) {
-	g, err := wincred.GetGenericCredential(url)
+	g, err := wincred.GetGenericCredential(p.getTargetName(url))
 	if err != nil {
 		return "", "", p.ErrorWrap(url, err)
 	}
 	if g == nil {
 		return "", "", p.ErrorWrap(url, ErrNotFound)
 	}
-	for _, attr := range g.Attributes {
-		if strings.Compare(attr.Keyword, "label") == 0 &&
-			bytes.Equal(attr.Value, []byte(p.domain.AccessGroup)) {
-
-			return g.UserName, string(g.CredentialBlob), nil
-		}
+	if !(p.matchAttributes(url, g)) {
+		return "", "", p.ErrorWrap(url, ErrNotFound)
 	}
-	return "", "", p.ErrorWrap(url, ErrNotFound)
+	return g.UserName, string(g.CredentialBlob), nil
 }
 
 func (p *WindowsProvider) Update(url, name, secret string) error {
@@ -87,19 +112,15 @@ func (p *WindowsProvider) Update(url, name, secret string) error {
 }
 
 func (p *WindowsProvider) Delete(url string) error {
-	g, err := wincred.GetGenericCredential(url)
+	g, err := wincred.GetGenericCredential(p.getTargetName(url))
 	if err != nil && !errors.Is(err, ErrNotFound) {
 		return p.ErrorWrap(url, err)
 	}
 	if g == nil {
 		return nil
 	}
-	for _, attr := range g.Attributes {
-		if strings.Compare(attr.Keyword, "label") == 0 &&
-			bytes.Equal(attr.Value, []byte(p.domain.AccessGroup)) {
-
-			return g.Delete()
-		}
+	if !(p.matchAttributes(url, g)) {
+		return nil
 	}
-	return nil
+	return g.Delete()
 }
