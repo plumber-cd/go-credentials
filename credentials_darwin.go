@@ -42,10 +42,10 @@ func (p *DarwinProvider) IsConfigured() bool {
 func (p *DarwinProvider) NewCreateItem(url, name, secret string) keychain.Item {
 	item := keychain.NewItem()
 	item.SetSecClass(keychain.SecClassGenericPassword)
-	item.SetService(p.domain.Service)
+	item.SetLabel(p.domain.Service)
 	item.SetAccessGroup(p.domain.AccessGroup)
-	item.SetAccount(url)
-	item.SetLabel(name)
+	item.SetAccount(name)
+	item.SetService(url)
 	item.SetData([]byte(secret))
 	item.SetSynchronizable(keychain.SynchronizableNo)
 	item.SetAccessible(keychain.AccessibleWhenUnlocked)
@@ -61,9 +61,9 @@ func (p *DarwinProvider) Create(url, name, secret string) error {
 func (p *DarwinProvider) NewRetrieveItem(url string) keychain.Item {
 	item := keychain.NewItem()
 	item.SetSecClass(keychain.SecClassGenericPassword)
-	item.SetService(p.domain.Service)
+	item.SetLabel(p.domain.Service)
 	item.SetAccessGroup(p.domain.AccessGroup)
-	item.SetAccount(url)
+	item.SetService(url)
 	item.SetMatchLimit(keychain.MatchLimitOne)
 	item.SetReturnAttributes(true)
 	item.SetReturnData(true)
@@ -100,9 +100,9 @@ func (p *DarwinProvider) Update(url, name, secret string) error {
 func (p *DarwinProvider) NewDeleteItem(url string) keychain.Item {
 	item := keychain.NewItem()
 	item.SetSecClass(keychain.SecClassGenericPassword)
-	item.SetService(p.domain.Service)
+	item.SetLabel(p.domain.Service)
 	item.SetAccessGroup(p.domain.AccessGroup)
-	item.SetAccount(url)
+	item.SetService(url)
 	return item
 }
 

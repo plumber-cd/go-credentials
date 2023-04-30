@@ -1,20 +1,22 @@
 module github.com/plumber-cd/go-credentials
 
-go 1.18
+go 1.20
 
 require (
 	github.com/danieljoos/wincred v1.1.2
 	github.com/keybase/dbus v0.0.0-20220506165403-5aa21ea2c23a
-	github.com/keybase/go-keychain v0.0.0-20220506172723-c18928ccd7f2
-	github.com/stretchr/testify v1.7.1
-	golang.org/x/exp v0.0.0-20220518171630-0b5c67f07fdf
+	github.com/keybase/go-keychain v0.0.0-20230307172405-3e4884637dd1
+	github.com/progrium/objc v0.0.0-20181117205807-75f5ed41d752
+	github.com/stretchr/testify v1.8.0
+	golang.org/x/exp v0.0.0-20230425010034-47ecfdc1ba53
 )
 
 require (
-	github.com/davecgh/go-spew v1.1.0 // indirect
+	github.com/davecgh/go-spew v1.1.1 // indirect
+	github.com/mkrautz/variadic v0.0.0-20131120212741-710a4c853bd6 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
-	golang.org/x/crypto v0.0.0-20200323165209-0ec3e9974c59 // indirect
-	golang.org/x/sys v0.0.0-20211019181941-9d821ace8654 // indirect
-	gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c // indirect
+	golang.org/x/crypto v0.8.0 // indirect
+	golang.org/x/sys v0.7.0 // indirect
+	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
