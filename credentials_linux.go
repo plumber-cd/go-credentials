@@ -37,7 +37,7 @@ func (p *LinuxProvider) IsConfigured() bool {
 	return p.domain != nil
 }
 
-func (p *WindowsProvider) getSecretName(url string) string {
+func (p *LinuxProvider) getSecretName(url string) string {
 	return p.domain.Service + " (" + url + ")"
 }
 
