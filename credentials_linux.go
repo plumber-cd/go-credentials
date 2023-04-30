@@ -138,7 +138,7 @@ func (p *LinuxProvider) Create(url, name, secret string) error {
 			p.getSecretName(url),
 			map[string]string{
 				"access-group": p.domain.AccessGroup,
-				"name":         name,
+				"name":         p.getSecretName(url),
 				"url":          url,
 			},
 		),
