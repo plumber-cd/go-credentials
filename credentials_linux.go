@@ -97,7 +97,7 @@ func (p *LinuxProvider) OpenItem(
 
 func (p *LinuxProvider) Create(url, name, secret string) error {
 	if err := p.OpenItem(
-		p.getSecretName(url),
+		url,
 		func(
 			_ *secretservice.SecretService,
 			_ dbus.ObjectPath,
@@ -137,9 +137,9 @@ func (p *LinuxProvider) Create(url, name, secret string) error {
 		secretservice.NewSecretProperties(
 			p.getSecretName(url),
 			map[string]string{
-				"label":    p.domain.AccessGroup,
-				"username": name,
-				"url":      url,
+				"access-group": p.domain.AccessGroup,
+				"username":     name,
+				"url":          url,
 			},
 		),
 		s,
@@ -153,7 +153,7 @@ func (p *LinuxProvider) Retrieve(url string) (string, string, error) {
 	var attrs secretservice.Attributes
 	var secret string
 	if err := p.OpenItem(
-		p.getSecretName(url),
+		url,
 		func(
 			_ *secretservice.SecretService,
 			_ dbus.ObjectPath,
@@ -180,7 +180,7 @@ func (p *LinuxProvider) Update(url, name, secret string) error {
 
 func (p *LinuxProvider) Delete(url string) error {
 	return p.OpenItem(
-		p.getSecretName(url),
+		url,
 		func(
 			srv *secretservice.SecretService,
 			item dbus.ObjectPath,
