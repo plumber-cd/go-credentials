@@ -26,7 +26,7 @@ func TestBig(t *testing.T) {
 	err = credentials.Create("http://foo", "foo", "bar")
 	require.NoError(t, err)
 
-	err = credentials.Create("http://foo", "baz", "qwe")
+	err = credentials.Create("http://foo", "foo", "qwe")
 	require.Error(t, err)
 	require.ErrorIs(t, err, credentials.ErrDuplicate)
 

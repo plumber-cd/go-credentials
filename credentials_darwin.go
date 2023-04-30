@@ -88,7 +88,7 @@ func (p *DarwinProvider) Retrieve(url string) (string, string, error) {
 	if err != nil {
 		return "", "", p.ErrorWrap(url, err)
 	}
-	return secret.Label, string(secret.Data), nil
+	return secret.Account, string(secret.Data), nil
 }
 
 func (p *DarwinProvider) Update(url, name, secret string) error {
