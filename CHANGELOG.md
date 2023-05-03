@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.6] - 2023-05-02
+
+### Fixed
+
+- Darwin requires CGO and not iOS
+
 ## [0.0.5] - 2023-04-29
 
 ### Fixed
