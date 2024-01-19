@@ -6,12 +6,18 @@ package credentials
 import (
 	"errors"
 	"fmt"
+	"os"
 
 	"github.com/keybase/go-keychain"
 )
 
 func init() {
 	Current = &DarwinProvider{}
+
+	force, ok := os.LookupEnv("GO_CREDENTIALS_FORCE_PASS")
+	if ok && force == "1" {
+		Current = &LinuxPassProvider{}
+	}
 }
 
 type DarwinProvider struct {

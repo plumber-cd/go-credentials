@@ -1,6 +1,3 @@
-//go:build linux
-// +build linux
-
 package credentials
 
 import (
@@ -65,14 +62,20 @@ func (p *LinuxPassProvider) Create(url, name, secret string) error {
 
 func (p *LinuxPassProvider) Retrieve(url string) (name, secret string, err error) {
 	cmd := exec.Command("pass", p.getPassPath(url))
-	var out bytes.Buffer
-	cmd.Stdout = &out
+	var stdout, stderr bytes.Buffer
+	cmd.Stdout = &stdout
+	cmd.Stderr = &stderr
 	err = cmd.Run()
+	combinedOutput := stdout.String() + stderr.String()
 	if err != nil {
+		if execErr, ok := err.(*exec.ExitError); ok {
+			execErr.Stderr = []byte(combinedOutput)
+			return "", "", p.ErrorWrap(url, execErr)
+		}
 		return "", "", p.ErrorWrap(url, err)
 	}
 
-	parts := strings.SplitN(out.String(), ":", 2)
+	parts := strings.SplitN(stdout.String(), ":", 2)
 	if len(parts) != 2 {
 		return "", "", fmt.Errorf("invalid entry format")
 	}
@@ -90,12 +93,22 @@ func (p *LinuxPassProvider) Retrieve(url string) (name, secret string, err error
 }
 
 func (p *LinuxPassProvider) Update(url, name, secret string) error {
-	return p.insert(url, name, secret) // In 'pass', create and update are the same
+	_, _, err := p.Retrieve(url)
+	if err != nil {
+		return p.ErrorWrap(url, err)
+	}
+
+	return p.insert(url, name, secret)
 }
 
 func (p *LinuxPassProvider) Delete(url string) error {
+	_, _, err := p.Retrieve(url)
+	if err != nil {
+		return p.ErrorWrap(url, err)
+	}
+
 	cmd := exec.Command("pass", "rm", "--force", p.getPassPath(url))
-	err := cmd.Run()
+	err = cmd.Run()
 	return p.ErrorWrap(url, err)
 }
 
@@ -110,9 +123,8 @@ func (p *LinuxPassProvider) ErrorWrap(url string, err error) error {
 		switch {
 		case strings.Contains(stdErr, "is not in the password store"):
 			return fmt.Errorf("%w: %s - %s", ErrNotFound, url, err)
-		case strings.Contains(stdErr, "already exists"):
-			return fmt.Errorf("%w: %s - %s", ErrDuplicate, url, err)
 		default:
+			fmt.Printf("ErrorWrap is unknown\n")
 			return err
 		}
 	}
