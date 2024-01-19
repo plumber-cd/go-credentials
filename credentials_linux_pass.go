@@ -42,7 +42,7 @@ func (p *LinuxPassProvider) IsConfigured() bool {
 	return p.IsInstalledAndInitialized()
 }
 
-func (p *PassProvider) insert(url, name, secret string) error {
+func (p *LinuxPassProvider) insert(url, name, secret string) error {
 	encodedName := encodeBase64(name)
 	encodedSecret := encodeBase64(secret)
 	entry := encodedName + ":" + encodedSecret
@@ -53,7 +53,7 @@ func (p *PassProvider) insert(url, name, secret string) error {
 	return p.ErrorWrap(url, err)
 }
 
-func (p *PassProvider) Create(url, name, secret string) error {
+func (p *LinuxPassProvider) Create(url, name, secret string) error {
 	_, _, err := p.Retrieve(url)
 	if err == nil {
 		// No error means the entry exists
@@ -63,7 +63,7 @@ func (p *PassProvider) Create(url, name, secret string) error {
 	return p.insert(url, name, secret)
 }
 
-func (p *PassProvider) Retrieve(url string) (name, secret string, err error) {
+func (p *LinuxPassProvider) Retrieve(url string) (name, secret string, err error) {
 	cmd := exec.Command("pass", p.getPassPath(url))
 	var out bytes.Buffer
 	cmd.Stdout = &out
@@ -89,17 +89,17 @@ func (p *PassProvider) Retrieve(url string) (name, secret string, err error) {
 	return name, secret, nil
 }
 
-func (p *PassProvider) Update(url, name, secret string) error {
+func (p *LinuxPassProvider) Update(url, name, secret string) error {
 	return p.insert(url, name, secret) // In 'pass', create and update are the same
 }
 
-func (p *PassProvider) Delete(url string) error {
+func (p *LinuxPassProvider) Delete(url string) error {
 	cmd := exec.Command("pass", "rm", "--force", p.getPassPath(url))
 	err := cmd.Run()
 	p.ErrorWrap(url, err)
 }
 
-func (p *PassProvider) ErrorWrap(url string, err error) error {
+func (p *LinuxPassProvider) ErrorWrap(url string, err error) error {
 	if err == nil {
 		return nil
 	}
@@ -122,7 +122,7 @@ func (p *PassProvider) ErrorWrap(url string, err error) error {
 }
 
 // getPassPath generates a path for the pass entry.
-func (p *PassProvider) getPassPath(url string) string {
+func (p *LinuxPassProvider) getPassPath(url string) string {
 	hash := md5.Sum([]byte(url))
 	hashedURL := hex.EncodeToString(hash[:])
 	return fmt.Sprintf("%s/%s/%s", p.domain.Service, p.domain.AccessGroup, hashedURL)
