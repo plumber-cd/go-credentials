@@ -96,7 +96,7 @@ func (p *LinuxPassProvider) Update(url, name, secret string) error {
 func (p *LinuxPassProvider) Delete(url string) error {
 	cmd := exec.Command("pass", "rm", "--force", p.getPassPath(url))
 	err := cmd.Run()
-	p.ErrorWrap(url, err)
+	return p.ErrorWrap(url, err)
 }
 
 func (p *LinuxPassProvider) ErrorWrap(url string, err error) error {

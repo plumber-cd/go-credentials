@@ -19,7 +19,7 @@ import (
 func init() {
 	Current = &LinuxProvider{}
 	if !isLinuxSecretServiceAvailable() {
-		Current = LinuxPassProvider{}
+		Current = &LinuxPassProvider{}
 	}
 }
 
