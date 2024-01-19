@@ -18,7 +18,7 @@ import (
 
 func init() {
 	Current = &LinuxProvider{}
-	if !Current.isSecretServiceAvailable() {
+	if !isLinuxSecretServiceAvailable() {
 		Current = LinuxPassProvider{}
 	}
 }
@@ -27,7 +27,7 @@ type LinuxProvider struct {
 	domain *Domain
 }
 
-func (p *LinuxProvider) isSecretServiceAvailable() bool {
+func isLinuxSecretServiceAvailable() bool {
 	// Check if the 'dbus-send' command is available
 	_, err := exec.LookPath("dbus-send")
 	if err != nil {
