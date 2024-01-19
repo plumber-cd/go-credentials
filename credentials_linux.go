@@ -152,9 +152,10 @@ func (p *LinuxProvider) Create(url, name, secret string) error {
 		return p.ErrorWrap(url, err)
 	}
 
-	defer func() {
-		_ = srv.LockItems([]dbus.ObjectPath{secretservice.DefaultCollection})
-	}()
+	// Do we ever need to lock the collection?
+	// defer func() {
+	// 	_ = srv.LockItems([]dbus.ObjectPath{secretservice.DefaultCollection})
+	// }()
 	if err := srv.Unlock([]dbus.ObjectPath{secretservice.DefaultCollection}); err != nil {
 		return p.ErrorWrap(url, err)
 	}
