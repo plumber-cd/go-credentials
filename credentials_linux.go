@@ -6,6 +6,8 @@ package credentials
 import (
 	"errors"
 	"fmt"
+	"os/exec"
+	"strings"
 
 	"golang.org/x/exp/maps"
 	"golang.org/x/exp/slices"
@@ -16,10 +18,35 @@ import (
 
 func init() {
 	Current = &LinuxProvider{}
+	if !Current.isSecretServiceAvailable() {
+		Current = LinuxPassProvider{}
+	}
 }
 
 type LinuxProvider struct {
 	domain *Domain
+}
+
+func (p *LinuxProvider) isSecretServiceAvailable() bool {
+	// Check if the 'dbus-send' command is available
+	_, err := exec.LookPath("dbus-send")
+	if err != nil {
+		// 'dbus-send' is not installed
+		return false
+	}
+
+	// Attempt to query the Secret Service API on D-Bus
+	cmd := exec.Command("dbus-send", "--print-reply", "--dest=org.freedesktop.DBus",
+		"/org/freedesktop/DBus", "org.freedesktop.DBus.NameHasOwner",
+		"string:org.freedesktop.secrets")
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		// Error executing dbus-send command
+		return false
+	}
+
+	// Check if the output indicates that the service is available
+	return strings.Contains(string(output), "boolean true")
 }
 
 func (p *LinuxProvider) ErrorWrap(url string, err error) error {
