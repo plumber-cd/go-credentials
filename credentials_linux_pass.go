@@ -79,11 +79,11 @@ func (p *LinuxPassProvider) Retrieve(url string) (name, secret string, err error
 
 	name, err = decodeBase64(parts[0])
 	if err != nil {
-		return "", "", fmt.Errorf("username can't be decoded:", err)
+		return "", "", fmt.Errorf("username can't be decoded: %s", err)
 	}
 	secret, err = decodeBase64(parts[1])
 	if err != nil {
-		return "", "", fmt.Errorf("secret can't be decoded:", err)
+		return "", "", fmt.Errorf("secret can't be decoded: %s", err)
 	}
 
 	return name, secret, nil
