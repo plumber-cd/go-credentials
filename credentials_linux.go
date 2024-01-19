@@ -6,6 +6,7 @@ package credentials
 import (
 	"errors"
 	"fmt"
+	"os"
 	"os/exec"
 	"strings"
 
@@ -18,7 +19,10 @@ import (
 
 func init() {
 	Current = &LinuxProvider{}
-	if !isLinuxSecretServiceAvailable() {
+
+	force, ok := os.LookupEnv("GO_CREDENTIALS_FORCE_PASS")
+
+	if (ok && force == "1") || !isLinuxSecretServiceAvailable() {
 		Current = &LinuxPassProvider{}
 	}
 }
